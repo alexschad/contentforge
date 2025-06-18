@@ -1,0 +1,72 @@
+import fs from "fs";
+import { v4 as uuidv4 } from "uuid";
+
+import { retryFetch, formatDate, pauseTimeMs } from "./MetroPublisherUtility";
+
+function getImageContentType(filename: string): string {
+    const ext = filename.toLowerCase().split(".").pop();
+
+    switch (ext) {
+        case "jpg":
+        case "jpeg":
+            return "image/jpeg";
+        case "png":
+            return "image/png";
+        case "webp":
+            return "image/webp";
+        case "gif":
+            return "image/gif";
+        case "svg":
+            return "image/svg+xml";
+        case "bmp":
+            return "image/bmp";
+        case "tiff":
+        case "tif":
+            return "image/tiff";
+        default:
+            throw new Error(`Unsupported image extension: ${ext}`);
+    }
+}
+
+export default async function uploadImage(imagePath: string) {
+    const now = new Date();
+    const nowFormatted = formatDate(now);
+
+    const filename = imagePath.split("/").pop() || "image.jpg";
+    const title = filename.replace(/\.[^/.]+$/, ""); // Remove file extension
+    const cTtype = getImageContentType(filename);
+
+    const fileId = uuidv4() as string;
+    const data = {
+        title: title,
+        filename,
+        credits: "",
+        description: "",
+        created: nowFormatted,
+        modified: nowFormatted,
+    };
+
+    // Add the file
+    console.log("Adding file with data:", data);
+    await retryFetch(
+        `/files/${fileId}`,
+        "application/json",
+        "PUT",
+        JSON.stringify(data)
+    );
+
+    // upload file data
+    console.log("Uploading file data for:", imagePath);
+    try {
+        const fileData = fs.readFileSync(imagePath, "base64");
+        await new Promise((resolve) => setTimeout(resolve, pauseTimeMs));
+        const binaryImage = atob(fileData);
+        const buf = Buffer.from(binaryImage, "binary");
+        // Upload file data
+        await retryFetch(`/files/${fileId}`, cTtype, "POST", buf);
+    } catch (err) {
+        console.error(err);
+    }
+
+    return fileId;
+}
