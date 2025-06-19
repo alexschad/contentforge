@@ -36,12 +36,7 @@ export async function runContentAgent(jobId: string, prompt: string) {
 
         // Step 5: Publish article
         jobs[jobId].status = "uploading_article";
-        const contentId = await uploadArticle(
-            article.title,
-            article.content,
-            article.status || "publish",
-            imageAssetUUID
-        );
+        const contentId = await uploadArticle(article, imageAssetUUID);
 
         // Step 6: Add tags to article
         // Assuming you have a function to add tags to an article
@@ -50,9 +45,6 @@ export async function runContentAgent(jobId: string, prompt: string) {
             await tagArticle(contentId, tags);
         }
         jobs[jobId].status = "completed";
-
-    //     // console.log("Tags added:", tags);
-    //     // console.log("Image added:", imageAssetUUID);
-    //     // console.log("Article published:");
-    // }
+    }
+    jobs[jobId].status = "completed";
 }

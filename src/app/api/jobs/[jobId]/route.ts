@@ -5,7 +5,7 @@ export async function GET(
     req: NextRequest,
     { params }: { params: { jobId: string } }
 ) {
-    const { jobId } = params;
+    const { jobId } = await params;
 
     // TODO: fetch job status from your DB/cache/memory by jobId
     console.log(jobs, jobId);

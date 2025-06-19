@@ -1,5 +1,3 @@
-import { ArticleType } from "@/types/Article";
-
 export type JobStatus =
     | "queued"
     | "generating_article"
@@ -15,7 +13,6 @@ export type JobStatus =
 export interface Job {
     id: string;
     status: JobStatus;
-    result?: ArticleType;
     error?: string;
     createdAt: Date;
 }

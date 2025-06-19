@@ -1,6 +1,5 @@
 import OpenAI from "openai";
 import { decode } from "he";
-import { ArticleType } from "@/types/Article";
 
 export async function generateArticle2(prompt: string) {
     // For testing purposes, we will return a static article
@@ -33,7 +32,7 @@ export async function generateArticle2(prompt: string) {
             "<p>No matter which burger destination you choose from this list, you're guaranteed a satisfying meal that's bursting with flavor. Berlin's burger scene is as diverse and dynamic as the city itself — so go ahead, take a hearty bite out of the capital's burger offerings!</p>",
         status: "publish",
     };
-    return article as ArticleType;
+    return article;
 }
 
 export async function generateArticle(prompt: string) {
@@ -52,18 +51,49 @@ export async function generateArticle(prompt: string) {
                             type: "string",
                             description: "The title of the article",
                         },
+                        sub_title: {
+                            type: "string",
+                            description: "The subtitle of the article",
+                        },
+                        kicker: {
+                            type: "string",
+                            description:
+                                "The teaser or contextual label for the article",
+                        },
+                        description: {
+                            type: "string",
+                            description: "A Short description for the article",
+                        },
+                        meta_title: {
+                            type: "string",
+                            description:
+                                "A Good SEO Friendly title for the meta title tag of the article",
+                        },
+                        meta_description: {
+                            type: "string",
+                            description:
+                                "A Good SEO Friendly description for the meta description tag of the article",
+                        },
                         content: {
                             type: "string",
                             description: "body of the article",
                         },
                         status: {
                             type: "string",
-                            enum: ["draft", "publish"],
+                            enum: ["draft", "published"],
                             description: "Whether to publish or save as draft",
-                            default: "publish",
+                            default: "published",
                         },
                     },
-                    required: ["title", "content"],
+                    required: [
+                        "title",
+                        "sub_title",
+                        "kicker",
+                        "description",
+                        "meta_title",
+                        "meta_description",
+                        "content",
+                    ],
                 },
             },
         },
@@ -82,6 +112,8 @@ export async function generateArticle(prompt: string) {
     7. The article should be relevant to the topic provided by the user.
     8. ALWAYS call the function \`create_article\` with the generated content. Do not return the article directly in chat.
     9. HTML encode any special characters.
+    10. The article should be suitable for publication on a website.
+    11. fill all fields in the function call, including title, subtitle, kicker, metatitle, metadescription, content and status.
 
     Do not explain your actions. Only respond with a tool call.
     `;

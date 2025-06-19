@@ -2,12 +2,30 @@ import { v4 as uuidv4 } from "uuid";
 import { retryFetch, formatDate, makeUrlName } from "./MetroPublisherUtility";
 
 export default async function uploadArticle(
-    title: string,
-    content: string,
-    status: "publish" | "draft" = "publish",
+    article: {
+        title: string;
+        sub_title: string;
+        kicker: string;
+        description: string;
+        meta_title: string;
+        meta_description: string;
+        content: string;
+        status?: "draft" | "published";
+    },
     imageAssetId: string | null = null
 ) {
-    console.log("Received Article:", { title, content, status });
+    console.log("Received Article:", article);
+    const {
+        title,
+        sub_title,
+        kicker,
+        description,
+        meta_title,
+        meta_description,
+        content,
+        status = "published",
+    } = article;
+
     try {
         const contentId = uuidv4() as string;
         const urlname = makeUrlName(title, true);
@@ -38,6 +56,10 @@ export default async function uploadArticle(
             created: string;
             issued: string;
             title: string;
+            sub_title: string;
+            kicker: string;
+            meta_title: string;
+            meta_description: string;
             description: string;
             state: string;
             content: string;
@@ -50,8 +72,12 @@ export default async function uploadArticle(
             created: nowFormatted,
             issued: nowFormatted,
             title: title,
-            description: title,
-            state: "published",
+            sub_title: sub_title,
+            description: description,
+            meta_title: meta_title,
+            meta_description: meta_description,
+            kicker: kicker,
+            state: status,
             content: htmlcontent,
         } as dataType;
 
