@@ -3,6 +3,7 @@ export type JobStatus =
     | "generating_article"
     | "generating_tags"
     | "generating_image"
+    | "generating_image_metadata"
     | "downloading_image"
     | "uploading_image"
     | "uploading_article"
