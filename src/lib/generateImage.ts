@@ -33,7 +33,7 @@ export async function downloadImage(
     //     `${__dirname}/../generatedImages/`,
     //     filename
     // );
-    const tempDir = path.resolve("./src/tmp");
+    const tempDir = path.resolve("./tmp");
     const imagePath = path.join(tempDir, filename);
     const writer = fs.createWriteStream(imagePath);
     const response = await axios.get(url, { responseType: "stream" });
