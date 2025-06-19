@@ -2,9 +2,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { runContentAgent } from "@/agents/contentAgent";
 import { v4 as uuidv4 } from "uuid";
+import { clearOldTempFiles } from "@/lib/clearTempFolder";
 
 export async function POST(req: NextRequest) {
     try {
+        // Clear old temp files before processing a new request
+        clearOldTempFiles();
+
         const { prompt } = await req.json();
         const jobId = uuidv4(); // Generate early
 
