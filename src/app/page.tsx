@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 export default function StartPage() {
     const [prompt, setPrompt] = useState("");
     const [jobId, setJobId] = useState<string | null>(null);
-    const [status, setStatus] = useState("queued");
+    const [status, setStatus] = useState("");
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
