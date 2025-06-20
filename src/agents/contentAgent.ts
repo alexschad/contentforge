@@ -52,7 +52,10 @@ export async function runContentAgent(jobId: string, prompt: string) {
 
         // Publish article
         jobs[jobId].status = "uploading_article";
-        const contentId = await uploadArticle(article, imageAssetUUID);
+        const [contentId, urlname] = await uploadArticle(
+            article,
+            imageAssetUUID
+        );
 
         // Add tags to article
         // Assuming you have a function to add tags to an article
@@ -61,6 +64,10 @@ export async function runContentAgent(jobId: string, prompt: string) {
             await tagArticle(contentId, tags);
         }
         jobs[jobId].status = "completed";
+        jobs[jobId].result = `${process.env.MP_INSTANCE_DOMAIN}/${urlname}/`;
+    } else {
+        console.error("Failed to generate article content.");
+        jobs[jobId].error = "Failed to generate article content.";
+        jobs[jobId].status = "error";
     }
-    jobs[jobId].status = "completed";
 }

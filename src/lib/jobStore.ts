@@ -15,6 +15,7 @@ export interface Job {
     id: string;
     status: JobStatus;
     error?: string;
+    result?: string;
     createdAt: Date;
 }
 

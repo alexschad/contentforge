@@ -13,7 +13,7 @@ export default async function uploadArticle(
         status?: "draft" | "published";
     },
     imageAssetId: string | null = null
-) {
+): Promise<[string, string]> {
     console.log("Received Article:", article);
     const {
         title,
@@ -93,8 +93,9 @@ export default async function uploadArticle(
             JSON.stringify(data)
         );
         console.log("Response from Metropublisher:", response);
-        return contentId;
+        return [contentId, urlname];
     } catch (error) {
         console.error("Error uploading article:", error);
+        return ["", ""];
     }
 }

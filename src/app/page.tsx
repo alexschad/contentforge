@@ -8,6 +8,7 @@ export default function StartPage() {
     const [prompt, setPrompt] = useState("");
     const [jobId, setJobId] = useState<string | null>(null);
     const [status, setStatus] = useState<JobStatus | null>(null);
+    const [articleUrl, setArticleUrl] = useState<string | null>(null);
 
     useEffect(() => {
         if (!jobId) return;
@@ -18,6 +19,9 @@ export default function StartPage() {
                 setStatus(data.status);
                 if (data.status === "completed" || data.status === "error") {
                     clearInterval(interval);
+                }
+                if (data.status === "completed" && data.result) {
+                    setArticleUrl(data.result);
                 }
             } catch (err) {
                 setStatus("error");
@@ -31,6 +35,8 @@ export default function StartPage() {
 
     async function runAgent() {
         try {
+            setStatus("queued");
+            setArticleUrl(null);
             const res = await fetch("/api/agent", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -64,7 +70,7 @@ export default function StartPage() {
                 id="prompt"
                 className="w-full p-3 border rounded mb-4"
                 rows={4}
-                placeholder="e.g. AI in local journalism"
+                placeholder="e.g. AI in journalism"
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
             />
@@ -79,6 +85,17 @@ export default function StartPage() {
                     : "Generate Article"}
             </button>
             <JobProgress status={status} />
+
+            {articleUrl && (
+                <a
+                    href={articleUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block mt-4 text-blue-600 underline"
+                >
+                    🔗 View Published Article
+                </a>
+            )}
         </main>
     );
 }
