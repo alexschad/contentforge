@@ -9,7 +9,8 @@ export async function POST(req: NextRequest) {
         // Clear old temp files before processing a new request
         clearOldTempFiles();
 
-        const { prompt } = await req.json();
+        const { prompt, wordCount, tone, includeImage, imageStyle } =
+            await req.json();
         const jobId = uuidv4(); // Generate early
 
         if (!prompt) {
@@ -20,7 +21,14 @@ export async function POST(req: NextRequest) {
         }
 
         // Start processing in the background (without awaiting)
-        runContentAgent(jobId, prompt);
+        runContentAgent(
+            jobId,
+            prompt,
+            wordCount,
+            tone,
+            includeImage,
+            imageStyle
+        );
 
         // Respond with job ID immediately
         return NextResponse.json(

@@ -8,7 +8,6 @@ export async function GET(
     const { jobId } = await params;
 
     // TODO: fetch job status from your DB/cache/memory by jobId
-    console.log(jobs, jobId);
     const job = jobs[jobId];
 
     if (!job) {

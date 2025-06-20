@@ -9,6 +9,11 @@ export default function StartPage() {
     const [jobId, setJobId] = useState<string | null>(null);
     const [status, setStatus] = useState<JobStatus | null>(null);
     const [articleUrl, setArticleUrl] = useState<string | null>(null);
+    const [showOptions, setShowOptions] = useState(false);
+    const [wordCount, setWordCount] = useState(500);
+    const [tone, setTone] = useState("neutral");
+    const [includeImage, setIncludeImage] = useState(true);
+    const [imageStyle, setImageStyle] = useState("illustration");
 
     useEffect(() => {
         if (!jobId) return;
@@ -40,7 +45,13 @@ export default function StartPage() {
             const res = await fetch("/api/agent", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ prompt }),
+                body: JSON.stringify({
+                    prompt,
+                    wordCount,
+                    tone,
+                    includeImage,
+                    imageStyle,
+                }),
             });
 
             const data = await res.json();
@@ -74,6 +85,85 @@ export default function StartPage() {
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
             />
+            <button
+                onClick={() => setShowOptions(!showOptions)}
+                className="bg-black text-white px-4 py-2 m-2 rounded hover:bg-gray-800"
+            >
+                {showOptions ? "Hide options" : "Show options"}
+            </button>
+
+            {showOptions && (
+                <div className="border mt-4 p-4 m-2 rounded bg-gray-50">
+                    <div className="mb-3">
+                        <label className="block font-medium">
+                            Minimum Word Count
+                        </label>
+                        <select
+                            value={wordCount}
+                            onChange={(e) =>
+                                setWordCount(Number(e.target.value))
+                            }
+                            className="w-full border rounded p-2"
+                        >
+                            <option value="500">500</option>
+                            <option value="1000">1000</option>
+                            <option value="1500">1500</option>
+                            <option value="2000">2000</option>
+                        </select>
+                    </div>
+
+                    <div className="mb-3">
+                        <label className="block font-medium">Tone</label>
+                        <select
+                            value={tone}
+                            onChange={(e) => setTone(e.target.value)}
+                            className="w-full border rounded p-2"
+                        >
+                            <option value="neutral">Neutral</option>
+                            <option value="professional">Professional</option>
+                            <option value="journalistic">Journalistic</option>
+                            <option value="poetic">Poetic</option>
+                            <option value="formal">Formal</option>
+                            <option value="casual">Casual</option>
+                            <option value="humorous">Humorous</option>
+                            <option value="inspirational">Inspirational</option>
+                        </select>
+                    </div>
+
+                    <div className="mb-3">
+                        <label className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                checked={includeImage}
+                                onChange={() => setIncludeImage(!includeImage)}
+                            />
+                            Include image
+                        </label>
+                    </div>
+
+                    {includeImage && (
+                        <div className="mb-3">
+                            <label className="block font-medium">
+                                Image Style
+                            </label>
+                            <select
+                                value={imageStyle}
+                                onChange={(e) => setImageStyle(e.target.value)}
+                                className="w-full border rounded p-2"
+                            >
+                                <option value="illustration">
+                                    Illustration
+                                </option>
+                                <option value="photo realistic">
+                                    Photo Realistic
+                                </option>
+                                <option value="3d render">3D Render</option>
+                                <option value="painting">Painting</option>
+                            </select>
+                        </div>
+                    )}
+                </div>
+            )}
 
             <button
                 onClick={runAgent}

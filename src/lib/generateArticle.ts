@@ -1,9 +1,13 @@
 import OpenAI from "openai";
 import { decode } from "he";
 
-export async function generateArticle2(prompt: string) {
+export async function generateArticle2(
+    prompt: string,
+    wordCount: number,
+    tone: string
+) {
     // For testing purposes, we will return a static article
-    console.log("Generating article for prompt:", prompt);
+    console.log("Generating article for prompt:", prompt, wordCount, tone);
     const article = {
         title: "Top 10 Burger Havens in Berlin You Simply Can't Miss",
         content:
@@ -35,7 +39,11 @@ export async function generateArticle2(prompt: string) {
     return article;
 }
 
-export async function generateArticle(prompt: string) {
+export async function generateArticle(
+    prompt: string,
+    wordCount: number,
+    tone: string
+) {
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     const functions: OpenAI.Chat.Completions.ChatCompletionTool[] = [
         {
@@ -104,20 +112,27 @@ export async function generateArticle(prompt: string) {
 
     Your task is:
     1. Read the user’s request for an article.
-    2. Generate a structured article with a title and body (minimum 300 words).
+    2. Generate a structured article with a title and body (minimum ${wordCount} words).
     3. The body should be formatted in HTML, using <p> tags for paragraphs, <h1> for the main title, and <h2> for subheadings.
     Don't use <br> tags, but use <p> tags to separate paragraphs. Don't use any other tags tahn <p>, <h1>, <h2>, <ul>, <ol> and <li>.
     4. Repond in the language of the user’s request.
+    5. Match the tone to the user’s request. Use a ${tone} tone — let this influence your word choice, phrasing, and sentence structure.
     6. The article should be informative, engaging, and well-researched.
     7. The article should be relevant to the topic provided by the user.
-    8. ALWAYS call the function \`create_article\` with the generated content. Do not return the article directly in chat.
-    9. HTML encode any special characters.
-    10. The article should be suitable for publication on a website.
-    11. fill all fields in the function call, including title, subtitle, kicker, metatitle, metadescription, content and status.
+    8. HTML encode any special characters.
+    9. The article should be suitable for publication on a website.
+    10. fill all fields in the function call, including title, subtitle, kicker, metatitle, metadescription, content and status.
+    11. ALWAYS call the function \`create_article\` with the generated content. Do not return the article directly in chat.
 
     Do not explain your actions. Only respond with a tool call.
     `;
-
+    console.log(
+        "Generating article with systemPrompt:",
+        systemPrompt,
+        prompt,
+        wordCount,
+        tone
+    );
     const chat = await openai.chat.completions.create({
         model: "gpt-4-1106-preview",
         messages: [

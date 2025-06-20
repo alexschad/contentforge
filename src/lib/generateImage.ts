@@ -4,9 +4,34 @@ import axios from "axios";
 import { OpenAI } from "openai";
 import slugify from "slugify";
 
-function buildImagePrompt(title: string, content: string): string {
-    const topic = content.slice(0, 300).replace(/\s+/g, " ").trim(); // brief context
-    return `An editorial-style illustration for an article titled: "${title}". It should depict the central theme of the article: ${topic}. Style: realistic, professional, high-quality composition, suitable for a magazine or news website.`;
+function mapImageStyleToPrompt(style: string): string {
+    switch (style.toLowerCase()) {
+        case "illustration":
+            return "editorial illustration, clean lines, vibrant colors, high detail, suitable for print";
+        case "photo realistic":
+            return "high-quality, photo-realistic, cinematic lighting, natural textures, realistic human figures, suitable for magazine publication";
+        case "painting":
+            return "digital painting, rich brushwork, artistic lighting, high contrast, expressive style, suitable for editorial artwork";
+        case "3d render":
+            return "high-detail 3D render, dramatic lighting, studio quality, sharp depth of field, magazine-style composition";
+        default:
+            return "professional, high-quality editorial style image suitable for publication"; // fallback
+    }
+}
+
+function stripHtmlTags(text: string): string {
+    return text.replace(/<[^>]*>/g, "");
+}
+
+function buildImagePrompt(
+    title: string,
+    content: string,
+    imageStyle: string
+): string {
+    const strippedContent = stripHtmlTags(content);
+    const topic = strippedContent.slice(0, 300).replace(/\s+/g, " ").trim(); // brief context
+    const styleDescription = mapImageStyleToPrompt(imageStyle);
+    return `Create an editorial-style image for an article titled: "${title}". It should depict the central theme of the article: ${topic}. Style: ${styleDescription}. The image should be high-quality, professional, and suitable for a magazine or news website.`;
 }
 
 export async function generateImageMetadata(title: string, content: string) {
@@ -54,9 +79,13 @@ Respond in this JSON format:
     }
 }
 
-export async function generateImage(title: string, content: string) {
+export async function generateImage(
+    title: string,
+    content: string,
+    imageStyle: string = "illustration"
+): Promise<string> {
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-    const prompt = buildImagePrompt(title, content);
+    const prompt = buildImagePrompt(title, content, imageStyle);
     console.log("Generating image with prompt:", prompt);
     const response = await openai.images.generate({
         model: "dall-e-3",
