@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { JobProgress } from "@/components/jobProgress";
+import type { JobStatus } from "@/lib/jobStore";
 
 export default function StartPage() {
     const [prompt, setPrompt] = useState("");
     const [jobId, setJobId] = useState<string | null>(null);
-    const [status, setStatus] = useState("");
-    const [error, setError] = useState<string | null>(null);
+    const [status, setStatus] = useState<JobStatus | null>(null);
 
     useEffect(() => {
         if (!jobId) return;
@@ -19,7 +20,7 @@ export default function StartPage() {
                     clearInterval(interval);
                 }
             } catch (err) {
-                setError("Polling failed");
+                setStatus("error");
                 clearInterval(interval);
                 console.error("Polling error:", err);
             }
@@ -29,8 +30,6 @@ export default function StartPage() {
     }, [jobId]);
 
     async function runAgent() {
-        setError(null);
-
         try {
             const res = await fetch("/api/agent", {
                 method: "POST",
@@ -47,7 +46,7 @@ export default function StartPage() {
             setJobId(data.jobId || null);
         } catch (error) {
             if (error instanceof Error) {
-                setError(error.message);
+                setStatus("error");
             } else {
                 throw error;
             }
@@ -72,13 +71,14 @@ export default function StartPage() {
 
             <button
                 onClick={runAgent}
-                disabled={status === "running"}
+                disabled={status !== null && status !== "completed"}
                 className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800"
             >
-                {status === "running" ? "Generating..." : "Generate Article"}
+                {status !== null && status !== "completed"
+                    ? "Generating..."
+                    : "Generate Article"}
             </button>
-            {error && <div className="text-red-500 mt-4">❌ {error}</div>}
-            <div>📌 Status: {status}</div>
+            <JobProgress status={status} />
         </main>
     );
 }
